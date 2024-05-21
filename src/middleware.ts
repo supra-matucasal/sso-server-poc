@@ -9,52 +9,57 @@ const allowedOrigins = [
 
 export async function middleware(req: NextRequest) {
   const origin = req.headers.get('origin');
-  
-  if(!origin) {
+
+  if (!origin && req.nextUrl.pathname.startsWith('/api/')) {
     return NextResponse.json({ error: 'Origin not found' }, { status: 403 });
   }
-  
-  if (!allowedOrigins.includes(origin)) {
+
+  if (origin && !allowedOrigins.includes(origin)) {
     return NextResponse.json({ error: 'Origin not allowed' }, { status: 403 });
   }
 
-  const cookieToken = cookies().get('sso-token')?.value;
+  if (req.nextUrl.pathname.startsWith('/api/')) {
+    const cookieToken = cookies().get('sso-token')?.value;
+    const authorization = req.headers.get('authorization');
 
-  console.log('cookieToken', cookieToken)
+    let user = null;
 
-  const authorization = req.headers.get('authorization');
+    if (cookieToken) {
+      user = await verifyToken(cookieToken);
+      console.log('user from cookie', user)
+    }
 
-  console.log('authorization', authorization)
 
-  let user = null;
+    if (!user && authorization) {
+      const token = authorization.split(' ')[1];
+      if (token) {
+        user = await verifyToken(token);
+        console.log('user from token', user)
+      }
+    }
 
-  if (cookieToken) {
-    user = await verifyToken(cookieToken);
-    console.log('user from cookie', user)
+    console.log('user', user)
+
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    req.nextUrl.searchParams.set('user', JSON.stringify(user));
   }
 
-
-  if (!user && authorization) {
-    const token = authorization.split(' ')[1];
-    if (token) {
-      user = await verifyToken(token);
-      console.log('user from token', user)
+  if (req.nextUrl.pathname === '/login') {
+    const validToken = process.env.TOKEN_EXTERNAL_APPS;
+    const token = req.nextUrl.searchParams.get('token');
+    if (!token || token !== validToken) {
+      return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
     }
   }
 
-  console.log('user', user)
-
-
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  // Attach user to request object for further use in API routes
-  req.nextUrl.searchParams.set('user', JSON.stringify(user));
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/api/protected/:path*', '/api/auth/validate'], // Apply middleware to specific routes
+  matcher: ['/api/protected/:path*', '/api/auth/validate', '/login'],
 };
