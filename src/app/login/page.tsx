@@ -13,7 +13,7 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const redirectUrl = searchParams.get('redirectUrl') || '/';
+      const redirectUrl = searchParams.get('redirect') || '/';
       const token = searchParams.get('token') || '';
 
       const response = await axios.post('/api/auth/login', { email, password, token, redirectUrl });

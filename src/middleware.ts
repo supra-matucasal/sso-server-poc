@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 
 const allowedOrigins = [
   'http://localhost:3000',
+  'http://localhost:4000',
   // Add other allowed origins here
 ];
 
@@ -51,6 +52,7 @@ export async function middleware(req: NextRequest) {
   if (req.nextUrl.pathname === '/login') {
     const validToken = process.env.TOKEN_EXTERNAL_APPS;
     const token = req.nextUrl.searchParams.get('token');
+    console.log('Token receveid', token, 'Valid token', validToken)
     if (!token || token !== validToken) {
       return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
     }
