@@ -13,62 +13,61 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id                            Int      @id @default(autoincrement())
-  refereeUserId                 Int?     @map("referee_user_id")
-  refereeUser                   User?    @relation("RefereeUser", fields: [refereeUserId], references: [id])
-  referredUsers                 User[]   @relation("RefereeUser")
-  auth0Id                       String?  @map("auth0_id")
-  email                         String   @unique
-  firstName                     String?  @map("first_name")
-  lastName                      String?  @map("last_name")
-  country                       String?
-  phoneNumber                   String?  @map("phone_number")
-  referralUrl                   String?  @map("referral_url")
-  kycStatus                     String?  @map("kyc_status")
-  type                          String?
-  createdAt                     DateTime @default(now()) @map("created_at")
-  updatedAt                     DateTime @default(now()) @map("updated_at")
-  onfidoApplicationMeta         Json?    @map("onfido_application_meta")
-  onfidoApplicantId             String?  @map("onfido_applicant_id")
-  hubspotId                     String?  @map("hubspot_id")
-  onfidoPoaProperties           Json?    @map("onfido_poa_properties")
-  onfidoDocumentProperties      Json?    @map("onfido_document_properties")
-  onfidoApplicantFraudProperties Json?   @map("onfido_applicant_fraud_properties")
-  username                      String?
-  isPhoneNotificationsEnabled   Boolean? @default(false) @map("is_phone_notifications_enabled")
-  onfidoPoaResult               String?  @map("onfido_poa_result")
-  onfidoPoaStatus               String?  @map("onfido_poa_status")
-  onfidoDocumentResult          String?  @map("onfido_document_result")
-  onfidoDocumentStatus          String?  @map("onfido_document_status")
-  onfidoApplicantFraudResult    String?  @map("onfido_applicant_fraud_result")
-  onfidoApplicantFraudStatus    String?  @map("onfido_applicant_fraud_status")
-  isGpcEnabled                  Boolean? @default(false) @map("is_gpc_enabled")
-  telegramHandle                String?  @map("telegram_handle")
-  ref                           String?
-  refCode                       String?  @map("ref_code")
-  eligibleForTokens             Boolean? @default(false) @map("eligible_for_tokens")
-  emailVerificationCode         String?  @map("email_verification_code")
-  emailVerifiedAt               DateTime?@map("email_verified_at")
-  isOnfidoDuplicate             Boolean  @default(false) @map("is_onfido_duplicate")
-  onfidoKnownFacesResult        String?  @map("onfido_known_faces_result")
-  onfidoKnownFacesProperties    Json?    @map("onfido_known_faces_properties")
-  onfidoKnownFacesStatus        String?  @map("onfido_known_faces_status")
-  onfidoReviewedAt              DateTime?@map("onfido_reviewed_at")
-  isBanned                      Boolean? @default(false) @map("is_banned")
-  bannedReason                  String?  @map("banned_reason")
-  deletedAt                     DateTime?@map("deleted_at")
-  onfidoWorkflowRunId           String?  @map("onfido_workflow_run_id")
-  manualReview                  Boolean  @default(false) @map("manual_review")
-  twitterAccount                String?  @map("twitter_account")
-  discordAccount                String?  @map("discord_account")
-  discordId                     String?  @map("discord_id")
-  twitterId                     String?  @map("twitter_id")
-  walletAddress                 String?  @map("wallet_address")
-  stakingPreference             Json?    @map("staking_preference")
-  password                      String?
-
+  id                             Int       @id @default(autoincrement())
+  refereeUserId                  Int?      @map("referee_user_id")
+  refereeUser                    User?     @relation("RefereeUser", fields: [refereeUserId], references: [id])
+  referredUsers                  User[]    @relation("RefereeUser")
+  auth0Id                        String?   @map("auth0_id")
+  email                          String    @unique
+  firstName                      String?   @map("first_name")
+  lastName                       String?   @map("last_name")
+  country                        String?
+  phoneNumber                    String?   @map("phone_number")
+  referralUrl                    String?   @map("referral_url")
+  kycStatus                      String?   @map("kyc_status")
+  type                           String?
+  createdAt                      DateTime  @default(now()) @map("created_at")
+  updatedAt                      DateTime  @default(now()) @map("updated_at")
+  onfidoApplicationMeta          Json?     @map("onfido_application_meta")
+  onfidoApplicantId              String?   @map("onfido_applicant_id")
+  hubspotId                      String?   @map("hubspot_id")
+  onfidoPoaProperties            Json?     @map("onfido_poa_properties")
+  onfidoDocumentProperties       Json?     @map("onfido_document_properties")
+  onfidoApplicantFraudProperties Json?     @map("onfido_applicant_fraud_properties")
+  username                       String?
+  isPhoneNotificationsEnabled    Boolean?  @default(false) @map("is_phone_notifications_enabled")
+  onfidoPoaResult                String?   @map("onfido_poa_result")
+  onfidoPoaStatus                String?   @map("onfido_poa_status")
+  onfidoDocumentResult           String?   @map("onfido_document_result")
+  onfidoDocumentStatus           String?   @map("onfido_document_status")
+  onfidoApplicantFraudResult     String?   @map("onfido_applicant_fraud_result")
+  onfidoApplicantFraudStatus     String?   @map("onfido_applicant_fraud_status")
+  isGpcEnabled                   Boolean?  @default(false) @map("is_gpc_enabled")
+  telegramHandle                 String?   @map("telegram_handle")
+  ref                            String?
+  refCode                        String?   @map("ref_code")
+  eligibleForTokens              Boolean?  @default(false) @map("eligible_for_tokens")
+  emailVerificationCode          String?   @map("email_verification_code")
+  emailVerifiedAt                DateTime? @map("email_verified_at")
+  isOnfidoDuplicate              Boolean   @default(false) @map("is_onfido_duplicate")
+  onfidoKnownFacesResult         String?   @map("onfido_known_faces_result")
+  onfidoKnownFacesProperties     Json?     @map("onfido_known_faces_properties")
+  onfidoKnownFacesStatus         String?   @map("onfido_known_faces_status")
+  onfidoReviewedAt               DateTime? @map("onfido_reviewed_at")
+  isBanned                       Boolean?  @default(false) @map("is_banned")
+  bannedReason                   String?   @map("banned_reason")
+  deletedAt                      DateTime? @map("deleted_at")
+  onfidoWorkflowRunId            String?   @map("onfido_workflow_run_id")
+  manualReview                   Boolean   @default(false) @map("manual_review")
+  twitterAccount                 String?   @map("twitter_account")
+  discordAccount                 String?   @map("discord_account")
+  discordId                      String?   @map("discord_id")
+  twitterId                      String?   @map("twitter_id")
+  walletAddress                  String?   @map("wallet_address")
+  stakingPreference              Json?     @map("staking_preference")
+  password                       String?
+  states                         State[]
 
   @@index([auth0Id], name: "user_auth0_id_index")
   @@index([deletedAt], name: "users_deleted_at_index")
@@ -77,4 +76,13 @@ model User {
   @@index([onfidoApplicantId], name: "users_onfido_applicant_id_index")
   @@index([onfidoWorkflowRunId], name: "users_onfido_workflow_run_id_index")
   @@index([refereeUserId], name: "users_referee_user_id_index")
+}
+
+model State {
+  id        Int      @id @default(autoincrement())
+  state     String   @unique
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 }

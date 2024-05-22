@@ -5,17 +5,10 @@ import { cookies } from 'next/headers'
 import bcrypt from 'bcrypt';
 
 export async function POST(req: NextRequest) {
-  const { email, password, token, redirectUrl } = await req.json();
+  const { email, password, token, redirectUrl, state } = await req.json();
 
-  if (!email || !password || !token || !redirectUrl) {
+  if (!email || !password || !token || !redirectUrl || !state) {
     return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
-  }
-
-
-  // Verify the token
-  const validToken = process.env.TOKEN_EXTERNAL_APPS;
-  if (token !== validToken) {
-    return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
 
   //Check the user
@@ -25,21 +18,23 @@ export async function POST(req: NextRequest) {
     return new NextResponse(JSON.stringify({ error: 'Invalid credentials' }), { status: 401 });
   }
 
-  //Generate the auth token 
-  const authToken = await signToken({ id: user.id, email: user.email });
 
-  // Set the cookie
-  cookies().set({
-    name: 'sso-token',
-    value: authToken,
-    httpOnly: true,
-    secure: process.env.NODE_ENV !== 'development',
-    sameSite: 'none',
-    path: '/',
-    maxAge: 3600, // 1 hour
-    domain: process.env.COOKIE_DOMAIN || 'localhost'
+  // Store the state and associate it with the user ID
+  await prisma.state.create({
+    data: {
+      state,
+      userId: user.id,
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+    },
   });
 
-  return NextResponse.json({ message: 'Logged in', token: authToken, redirectUrl });
+  
+  console.log('State stored: ', state)
+
+
+  const redirectWithState = `${redirectUrl}?state=${state}`;
+
+
+  return NextResponse.json({ message: 'Logged in', redirectUrl: redirectWithState });
 
 }

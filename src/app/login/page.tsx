@@ -15,20 +15,19 @@ export default function Login() {
     try {
       const redirectUrl = searchParams.get('redirect') || '/';
       const token = searchParams.get('token') || '';
+      const state = searchParams.get('state') || '';
 
-      const response = await axios.post('/api/auth/login', { email, password, token, redirectUrl });
+      const response = await axios.post('/api/auth/login', { email, password, token, redirectUrl, state });
       if (response.status === 200) {
-        //redirect(redirectUrl)
-        //redirect("https://www.google.com/");
-        window.location.href = redirectUrl;
-
+        const { redirectUrl: serverRedirectUrl } = response.data;
+        // Redirect to the URL provided by the server
+        window.location.href = serverRedirectUrl;
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       setError('Login failed');
     }
   };
-
   return (
     <div>
       <h1>Login</h1>

@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(req: NextRequest) {
   const user = JSON.parse(req.nextUrl.searchParams.get('user') || '{}');
 
-  console.log('User in auth/validate', user);
+  console.log('User in auth/validate-access-token', user);
 
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
