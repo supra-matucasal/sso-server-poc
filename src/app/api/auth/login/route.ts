@@ -18,6 +18,20 @@ export async function POST(req: NextRequest) {
     return new NextResponse(JSON.stringify({ error: 'Invalid credentials' }), { status: 401 });
   }
 
+  const accessToken = await signToken({ id: user.id, email: user.email });
+
+  cookies().set({
+    name: 'sso-token',
+    value: accessToken,
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== 'development',
+    sameSite: 'strict',
+    path: '/',
+    domain: 'localhost', 
+    maxAge: 3600, // 1 hour
+  });
+
+
 
   // Store the state and associate it with the user ID
   await prisma.state.create({
@@ -29,9 +43,6 @@ export async function POST(req: NextRequest) {
   });
 
   
-  console.log('State stored: ', state)
-
-
   const redirectWithState = `${redirectUrl}?state=${state}`;
 
 
