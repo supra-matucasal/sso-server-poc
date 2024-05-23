@@ -7,7 +7,7 @@ import bcrypt from 'bcrypt';
 export async function POST(req: NextRequest) {
   const { email, password, token, redirectUrl, state } = await req.json();
 
-  if (!email || !password || !token || !redirectUrl || !state) {
+  if (!email || !password || !redirectUrl || !state) {
     return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
   }
 

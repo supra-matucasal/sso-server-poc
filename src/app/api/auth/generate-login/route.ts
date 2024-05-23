@@ -5,10 +5,16 @@ export async function POST(req: NextRequest) {
 
   const { redirect: redirectUrl, token, state } = await req.json();
 
+  //If token is not valid throw an error
+  if (!token) {
+    return new NextResponse(JSON.stringify({ error: 'Token is required' }), { status: 400 });
+  }
+
   try {
+
     const currentUrl = process.env.AUTH_SSO_SERVER || 'http://localhost:3000';
 
-    const loginUrl = `${currentUrl}/login?redirect=${redirectUrl}&token=${token}&state=${state}`;
+    const loginUrl = `${currentUrl}/login?redirect=${redirectUrl}&state=${state}`;
 
     
     return new NextResponse(JSON.stringify({ redirectTo: loginUrl }), {

@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'State not associated with any user' }, { status: 401 });
   }
 
-  // Optionally, delete the state after use to prevent reuse
+  // once validated the state is deleted
   await prisma.state.delete({ where: { state } });
 
   return NextResponse.json({ message: 'State verified' }, { status: 200 });

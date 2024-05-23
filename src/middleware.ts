@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse, userAgent } from 'next/server';
 import { verifyToken } from '@/lib/jwt';
 import { cookies } from 'next/headers';
+import { headers } from 'next/headers'
+
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -11,9 +13,23 @@ const allowedOrigins = [
 
 export async function middleware(req: NextRequest) {
   const origin = req.headers.get('origin');
-
-
+  const hostHeader = req.headers.get("Host");
+  
+  
+  console.log('req.nextUrl.pathname: ', req.nextUrl.pathname)
+  console.log('hostHeader', hostHeader)
   console.log('origin', origin)
+  console.log('req.headers.referer', req.headers.get('referer'))
+  
+
+  console.log('-----------------------------------')
+
+  //If route is /api/auth/generate-login I will allow the request
+  if (req.nextUrl.pathname.startsWith('/api/auth/generate-login')) {
+    return NextResponse.next();
+  }
+
+
 
 
   // if (!origin && req.nextUrl.pathname.startsWith('/api/')) {
@@ -66,5 +82,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/api/protected/:path*', '/api/auth/validate', '/login', '/api/auth/generate-login'],
+  matcher: ['/api/auth/:path*', '/api/auth/validate', '/login', '/api/auth/generate-login'],
 };
