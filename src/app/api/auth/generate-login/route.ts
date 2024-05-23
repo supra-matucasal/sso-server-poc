@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
   try {
 
-    const currentUrl = process.env.AUTH_SSO_SERVER || 'http://localhost:3000';
+    const currentUrl = process.env.AUTH_SSO_SERVER;
 
     const loginUrl = `${currentUrl}/login?redirect=${redirectUrl}&state=${state}`;
 
