@@ -11,9 +11,26 @@ const allowedOrigins = [
   // Add other allowed origins here
 ];
 
+const corsOptions = {
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+}
+
 export async function middleware(req: NextRequest) {
-  const origin = req.headers.get('origin');
+  const origin = req.headers.get('origin') ?? ''
+  const isAllowedOrigin = allowedOrigins.includes(origin)
+
   const hostHeader = req.headers.get("Host");
+
+  const isPreflight = req.method === 'OPTIONS'
+
+  if (isPreflight) {
+    const preflightHeaders = {
+      ...(isAllowedOrigin && { 'Access-Control-Allow-Origin': origin }),
+      ...corsOptions,
+    }
+    return NextResponse.json({}, { headers: preflightHeaders })
+  }
   
   
   console.log('req.nextUrl.pathname: ', req.nextUrl.pathname)
@@ -24,47 +41,61 @@ export async function middleware(req: NextRequest) {
 
   console.log('-----------------------------------')
 
-  //If route is /api/auth/generate-login I will allow the request
-  if (req.nextUrl.pathname.startsWith('/api/auth/generate-login')) {
-    return NextResponse.next();
-  }
+ // Handle simple requests
+ const response = NextResponse.next()
+ 
+ if (isAllowedOrigin) {
+   response.headers.set('Access-Control-Allow-Origin', origin)
+ }
+
+ Object.entries(corsOptions).forEach(([key, value]) => {
+   response.headers.set(key, value)
+ })
+
+ return response
 
 
-
-
-  // if (!origin && req.nextUrl.pathname.startsWith('/api/')) {
-  //   return NextResponse.json({ error: 'Origin not found' }, { status: 403 });
+  // //If route is /api/auth/generate-login I will allow the request
+  // if (req.nextUrl.pathname.startsWith('/api/auth/generate-login')) {
+  //   return NextResponse.next();
   // }
 
-  // if (origin && !allowedOrigins.includes(origin)) {
-  //   return NextResponse.json({ error: 'Origin not allowed' }, { status: 403 });
+
+
+
+  // // if (!origin && req.nextUrl.pathname.startsWith('/api/')) {
+  // //   return NextResponse.json({ error: 'Origin not found' }, { status: 403 });
+  // // }
+
+  // // if (origin && !allowedOrigins.includes(origin)) {
+  // //   return NextResponse.json({ error: 'Origin not allowed' }, { status: 403 });
+  // // }
+
+
+  // //If the url is /api/protected I will check the token except for the generate-login endpoint
+  // if (req.nextUrl.pathname.startsWith('/api/')) {
+  //   // const cookieToken = cookies().get('sso-token')?.value;
+  //   // const authorization = req.headers.get('authorization');
+
+  //   // let user = null;
+
+  //   // if (cookieToken) {
+  //   //   user = await verifyToken(cookieToken);
+  //   // }
+
+  //   // if (!user && authorization) {
+  //   //   const token = authorization.split(' ')[1];
+  //   //   if (token) {
+  //   //     user = await verifyToken(token);
+  //   //   }
+  //   // }
+
+  //   // if (!user && !req.nextUrl.pathname.startsWith('/api/auth/generate-login')) {
+  //   //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  //   // }
+
+  //   // req.nextUrl.searchParams.set('user', JSON.stringify(user));
   // }
-
-
-  //If the url is /api/protected I will check the token except for the generate-login endpoint
-  if (req.nextUrl.pathname.startsWith('/api/')) {
-    // const cookieToken = cookies().get('sso-token')?.value;
-    // const authorization = req.headers.get('authorization');
-
-    // let user = null;
-
-    // if (cookieToken) {
-    //   user = await verifyToken(cookieToken);
-    // }
-
-    // if (!user && authorization) {
-    //   const token = authorization.split(' ')[1];
-    //   if (token) {
-    //     user = await verifyToken(token);
-    //   }
-    // }
-
-    // if (!user && !req.nextUrl.pathname.startsWith('/api/auth/generate-login')) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    // }
-
-    // req.nextUrl.searchParams.set('user', JSON.stringify(user));
-  }
 
   //If the url is /login I will check the token
   // if (req.nextUrl.pathname === '/login') {
@@ -77,7 +108,7 @@ export async function middleware(req: NextRequest) {
   // }
 
   //I want to return the next response but with the headers set to allow cors
-  return NextResponse.next();
+  //return NextResponse.next();
 
 }
 
