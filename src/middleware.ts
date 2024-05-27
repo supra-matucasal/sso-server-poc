@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse, userAgent } from 'next/server';
-import { verifyToken } from '@/lib/jwt';
-import { cookies } from 'next/headers';
-import { headers } from 'next/headers'
-
+import { getCookie } from './lib/cookies';
+import { verifyToken } from './lib/jwt';
 
 const allowedOrigins = [
   'http://localhost:3000',
@@ -11,107 +9,53 @@ const allowedOrigins = [
   // Add other allowed origins here
 ];
 
-const corsOptions = {
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-}
-
 export async function middleware(req: NextRequest) {
-  const origin = req.headers.get('origin') ?? ''
-  const isAllowedOrigin = allowedOrigins.includes(origin)
+  const origin = req.headers.get('origin');
 
-  const hostHeader = req.headers.get("Host");
+  if (origin && allowedOrigins.includes(origin)) {
+    const response = NextResponse.next();
 
-  const isPreflight = req.method === 'OPTIONS'
+    response.headers.set('Access-Control-Allow-Origin', origin);
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    response.headers.set('Access-Control-Allow-Credentials', 'true');
 
-  if (isPreflight) {
-    const preflightHeaders = {
-      ...(isAllowedOrigin && { 'Access-Control-Allow-Origin': origin }),
-      ...corsOptions,
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+      return new NextResponse(null, { headers: response.headers });
     }
-    return NextResponse.json({}, { headers: preflightHeaders })
+
+    return response;
   }
-  
-  
-  console.log('req.nextUrl.pathname: ', req.nextUrl.pathname)
-  console.log('hostHeader', hostHeader)
-  console.log('origin', origin)
-  console.log('req.headers.referer', req.headers.get('referer'))
-  
-
-  console.log('-----------------------------------')
-
- // Handle simple requests
- const response = NextResponse.next()
- 
- if (isAllowedOrigin) {
-   response.headers.set('Access-Control-Allow-Origin', origin)
- }
-
- Object.entries(corsOptions).forEach(([key, value]) => {
-   response.headers.set(key, value)
- })
-
- return response
 
 
-  // //If route is /api/auth/generate-login I will allow the request
-  // if (req.nextUrl.pathname.startsWith('/api/auth/generate-login')) {
-  //   return NextResponse.next();
-  // }
+  //If the route is login or /api/auth/generate-login we should check if there is a cookie or not
+  //If there is a cookie we should redirect to the callback URL of the parameter
+  console.log('req.nextUrl.pathname', req.nextUrl.pathname)
+  if (req.nextUrl.pathname === '/login' || req.nextUrl.pathname === '/api/auth/generate-login') {
+    const cookieName = process.env.COOKIE_NAME;
+    if (cookieName) {
+      const accessToken = getCookie(cookieName)
+      console.log('accessToken', accessToken)
+      if (accessToken && await verifyToken(accessToken)) {
+        let redirectUrl
+        if (req.nextUrl.pathname  === '/login') {
+          const url = new URL(req.url);
+          redirectUrl = url.searchParams.get('redirect') + '?accessToken=' + accessToken;
+        } else {
+          const { redirect } = await req.json();
+          redirectUrl = redirect + '?accessToken=' + accessToken;
+        }
 
+        return NextResponse.redirect(redirectUrl);
+      }
+    }
 
+  }
 
-
-  // // if (!origin && req.nextUrl.pathname.startsWith('/api/')) {
-  // //   return NextResponse.json({ error: 'Origin not found' }, { status: 403 });
-  // // }
-
-  // // if (origin && !allowedOrigins.includes(origin)) {
-  // //   return NextResponse.json({ error: 'Origin not allowed' }, { status: 403 });
-  // // }
-
-
-  // //If the url is /api/protected I will check the token except for the generate-login endpoint
-  // if (req.nextUrl.pathname.startsWith('/api/')) {
-  //   // const cookieToken = cookies().get('sso-token')?.value;
-  //   // const authorization = req.headers.get('authorization');
-
-  //   // let user = null;
-
-  //   // if (cookieToken) {
-  //   //   user = await verifyToken(cookieToken);
-  //   // }
-
-  //   // if (!user && authorization) {
-  //   //   const token = authorization.split(' ')[1];
-  //   //   if (token) {
-  //   //     user = await verifyToken(token);
-  //   //   }
-  //   // }
-
-  //   // if (!user && !req.nextUrl.pathname.startsWith('/api/auth/generate-login')) {
-  //   //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  //   // }
-
-  //   // req.nextUrl.searchParams.set('user', JSON.stringify(user));
-  // }
-
-  //If the url is /login I will check the token
-  // if (req.nextUrl.pathname === '/login') {
-  //   const validToken = process.env.TOKEN_EXTERNAL_APPS;
-  //   const token = req.nextUrl.searchParams.get('token');
-  //   if (!token || token !== validToken) {
-  //     return NextResponse.json({ error: 'Unauthorized access' }, { status: 401 });
-  //   }
-
-  // }
-
-  //I want to return the next response but with the headers set to allow cors
-  //return NextResponse.next();
-
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/api/auth/:path*', '/api/auth/validate', '/login', '/api/auth/generate-login'],
+  matcher: ['/api/auth/:path*', '/api/auth/validate', '/login', '/api/auth/generate-login', '/api/auth/token'],
 };

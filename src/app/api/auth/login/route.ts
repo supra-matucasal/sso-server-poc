@@ -27,20 +27,6 @@ export async function POST(req: NextRequest) {
   //   return new NextResponse(JSON.stringify({ error: 'Internal server error' }), { status: 500 });
   // }
 
-  // cookies().set({
-  //   //name: 'sso-token',
-  //   name: cookieName,
-  //   value: accessToken,
-  //   httpOnly: true,
-  //   secure: process.env.NODE_ENV !== 'development',
-  //   sameSite: 'strict',
-  //   path: '/',
-  //   domain: cookieDomain, 
-  //   maxAge: +cookieMaxAge
-  // });
-
-
-
   // Store the state and associate it with the user ID
   await prisma.state.create({
     data: {
