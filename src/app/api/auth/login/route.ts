@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { signToken } from '@/lib/jwt';
 import { cookies } from 'next/headers'
 import bcrypt from 'bcrypt';
+import { login } from '@/services/directus';
 
 export async function POST(req: NextRequest) {
   const { email, password, token, redirectUrl, state } = await req.json();
@@ -12,13 +13,18 @@ export async function POST(req: NextRequest) {
   }
 
   //Check the user
-  const user = await prisma.user.findUnique({ where: { email } });
+  // const user = await prisma.user.findUnique({ where: { email } });
 
-  if (!user || !(await bcrypt.compare(password, user.password))) {
-    return new NextResponse(JSON.stringify({ error: 'Invalid credentials' }), { status: 401 });
-  }
+  // if (!user || !(await bcrypt.compare(password, user.password))) {
+  //   return new NextResponse(JSON.stringify({ error: 'Invalid credentials' }), { status: 401 });
+  // }
 
-  const accessToken = await signToken({ id: user.id, email: user.email });
+  // const accessToken = await signToken({ id: user.id, email: user.email });
+
+  const {access_token, refresh_token, expires} =  await login(email, password)
+  //console.log('dataLogin', dataLogin);
+
+  const accessToken = access_token
   const cookieName = process.env.COOKIE_NAME;
   const cookieDomain = process.env.COOKIE_DOMAIN;
   const cookieMaxAge = process.env.COOKIE_MAX_AGE || 3600;
@@ -41,14 +47,14 @@ export async function POST(req: NextRequest) {
     });
 
 
-  // Store the state and associate it with the user ID
-  await prisma.state.create({
-    data: {
-      state,
-      userId: user.id,
-      expiresAt: new Date(Date.now() + 10 * 60 * 1000),
-    },
-  });
+  // // Store the state and associate it with the user ID
+  // await prisma.state.create({
+  //   data: {
+  //     state,
+  //     userId: user.id,
+  //     expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+  //   },
+  // });
 
   
   const redirectWithState = `${redirectUrl}?state=${state}&accessToken=${accessToken}`;
