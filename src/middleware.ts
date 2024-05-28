@@ -6,6 +6,8 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:4000',
   'http://localhost:5000',
+  'http://app1.local:4000',
+  'http://app2.local:5000',
   // Add other allowed origins here
 ];
 
@@ -34,6 +36,7 @@ export async function middleware(req: NextRequest) {
   console.log('req.nextUrl.pathname', req.nextUrl.pathname)
   if (req.nextUrl.pathname === '/login' || req.nextUrl.pathname === '/api/auth/generate-login') {
     const cookieName = process.env.COOKIE_NAME;
+    //const cookieName = 'sso-temp-token';
     if (cookieName) {
       const accessToken = getCookie(cookieName)
       console.log('accessToken', accessToken)

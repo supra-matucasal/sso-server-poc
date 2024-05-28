@@ -19,6 +19,7 @@ export const setCookie = (cookieName: string, value: string) => {
 };
 
 export const getCookie = (cookieName: string) => {
+  console.log('Trying to get cookie with this cookiename: ', cookieName)
   return cookies().get(cookieName)?.value;
 };
 

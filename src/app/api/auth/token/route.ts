@@ -38,16 +38,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 
-  cookies().set({
-    name: cookieName,
-    value: accessToken,
-    httpOnly: true,
-    secure: process.env.NODE_ENV !== 'development',
-    sameSite: 'strict',
-    path: '/',
-    domain: cookieDomain, 
-    maxAge: +cookieMaxAge
-  });
+  // cookies().set({
+  //   name: cookieName,
+  //   value: accessToken,
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV !== 'development',
+  //   sameSite: 'strict',
+  //   path: '/',
+  //   domain: cookieDomain, 
+  //   maxAge: +cookieMaxAge
+  // });
 
   // cookies().set({
   //   name: 'sso-token-real-token',
