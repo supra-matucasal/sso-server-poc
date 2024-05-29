@@ -13,12 +13,13 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const redirectUrl = searchParams.get('redirect') || '/';
+      const redirect_url = searchParams.get('redirect_url') || '/';
       const state = searchParams.get('state') || '';
 
-      const response = await axios.post('/api/auth/login', { email, password, redirectUrl, state });
+      const response = await axios.post('/api/auth/login', { email, password, redirect_url, state });
       if (response.status === 200) {
         const { redirectUrl: serverRedirectUrl } = response.data;
+        console.log('I have to redirect to: ', serverRedirectUrl)
         // Redirect to the URL provided by the server
         window.location.href = serverRedirectUrl;
       }

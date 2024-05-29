@@ -2,65 +2,42 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyToken, signToken } from '@/lib/jwt';
 import { cookies } from 'next/headers';
+import { getCookie } from '@/lib/cookies';
 
 
 export async function POST(req: NextRequest) {
-  const { tempToken } = await req.json();
+  console.log('I am at token route')
+  const { code, client_id, redirect_url, client_secret } = await req.json();
 
-  if (!tempToken) {
-    return NextResponse.json({ error: 'Temp token is required' }, { status: 400 });
-  }
+  console.log(code, client_id, redirect_url, client_secret )
 
-  
-  //Verify temp token
-  const decoded = await verifyToken(tempToken);
-
-  if (!decoded) {
-    return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-  }
-
-  const user = await prisma.user.findUnique({ where: { id: decoded.id } });
-
-  if (!user) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  if (!code || !client_id || !redirect_url || !client_secret) {
+    return NextResponse.json({ error: 'code, client_id, redirect_url and client_secret are required' }, { status: 400 });
   }
 
 
-  //Generate a real access token now
-  const accessToken = await signToken({ id: user.id, email: user.email });
+  //TODO: Validate code, the client_id and client_secret
 
-  //Now that I have the token I will store it in a cookie
+
+
+  //Return the access token from the cookie
   const cookieName = process.env.COOKIE_NAME;
-  const cookieDomain = process.env.COOKIE_DOMAIN;
-  const cookieMaxAge = process.env.COOKIE_MAX_AGE || 3600;
 
-  if(!accessToken || !cookieName || !cookieDomain) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  if(!cookieName) {
+    return new NextResponse(JSON.stringify({ error: 'Internal server error' }), { status: 500 });
+  
   }
 
-  // cookies().set({
-  //   name: cookieName,
-  //   value: accessToken,
-  //   httpOnly: true,
-  //   secure: process.env.NODE_ENV !== 'development',
-  //   sameSite: 'strict',
-  //   path: '/',
-  //   domain: cookieDomain, 
-  //   maxAge: +cookieMaxAge
-  // });
+  console.log('Trying to get this cookie in the server: ', cookieName)
 
-  // cookies().set({
-  //   name: 'sso-token-real-token',
-  //   //name: cookieName,
-  //   value: accessToken,
-  //   httpOnly: true,
-  //   secure: process.env.NODE_ENV !== 'development',
-  //   sameSite: 'strict',
-  //   path: '/',
-  //   domain: 'localhost', 
-  //   maxAge: 3600
-  // });
 
+  const accessToken = getCookie(cookieName);
+
+  //get all the cookies
+  const allCookies = cookies().getAll();
+  console.log('allCookies in token route', allCookies)
+
+  console.log('accessToken in token route', accessToken)
 
 
   //return NextResponse.json({ accessToken }, { status: 200 });

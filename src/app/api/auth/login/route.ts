@@ -6,24 +6,16 @@ import bcrypt from 'bcrypt';
 import { login } from '@/services/directus';
 
 export async function POST(req: NextRequest) {
-  const { email, password, token, redirectUrl, state } = await req.json();
+  const { email, password, token, redirect_url, state } = await req.json();
 
-  if (!email || !password || !redirectUrl || !state) {
+  console.log('redirect_url: ', redirect_url)
+
+  if (!email || !password || !redirect_url || !state) {
     return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
   }
 
-  //Check the user
-  // const user = await prisma.user.findUnique({ where: { email } });
-
-  // if (!user || !(await bcrypt.compare(password, user.password))) {
-  //   return new NextResponse(JSON.stringify({ error: 'Invalid credentials' }), { status: 401 });
-  // }
-
-  // const accessToken = await signToken({ id: user.id, email: user.email });
-
   const {access_token, refresh_token, expires} =  await login(email, password)
-  //console.log('dataLogin', dataLogin);
-
+  
   const accessToken = access_token
   const cookieName = process.env.COOKIE_NAME;
   const cookieDomain = process.env.COOKIE_DOMAIN;
@@ -56,9 +48,15 @@ export async function POST(req: NextRequest) {
   //   },
   // });
 
-  
-  const redirectWithState = `${redirectUrl}?state=${state}&accessToken=${accessToken}`;
 
+  //Generate randome code for redirect
+  const code = Math.random().toString(36).substring(7);
+
+  
+  const redirectWithState = `${redirect_url}?state=${state}&code=${code}`;
+
+  
+  console.log('redirectWithState: ', redirectWithState)
 
   return NextResponse.json({ message: 'Logged in', redirectUrl: redirectWithState });
 

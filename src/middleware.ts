@@ -60,5 +60,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/api/auth/:path*', '/api/auth/validate', '/login', '/api/auth/generate-login', '/api/auth/token'],
+  matcher: ['/api/auth/:path*', '/api/auth/validate', '/login', '/api/auth/generate-login', '/api/auth/token', '/api/auth/authorize'],
 };
