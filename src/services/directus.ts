@@ -8,7 +8,7 @@ type DirectusResponseLogin = {
 
 async function login(email: string, password: string): Promise<DirectusResponseLogin> {
   try {
-    console.log('Trying to login with this: ',  email, password)
+    console.log('Trying to login with this: ', email, password)
     console.log('To this urL: ', `${directusAPI}/auth/login`)
     console.log('Doing login with this body: ', JSON.stringify({ email: email, password: password }))
     const response = await fetch(`${directusAPI}/auth/login`, {
@@ -34,7 +34,7 @@ async function login(email: string, password: string): Promise<DirectusResponseL
 }
 
 
-async function me (accessToken: string) {
+async function me(accessToken: string) {
   try {
     const response = await fetch(`${directusAPI}/users/me`, {
       headers: {
@@ -49,9 +49,31 @@ async function me (accessToken: string) {
   }
 }
 
+async function logout(accessToken: string, refreshToken: string) {
+  try {
+    const response = await fetch(`${directusAPI}/auth/logout`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ refresh_token: refreshToken })
+    });
+
+
+    return response;
+  }
+  catch (error) {
+    console.error('Error verifying token:', error);
+    return false;
+  }
+}
+
+
 
 
 export {
   login,
-  me
+  me,
+  logout
 }

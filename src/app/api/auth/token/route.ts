@@ -31,16 +31,22 @@ export async function POST(req: NextRequest) {
   console.log('Trying to get this cookie in the server: ', cookieName)
 
 
-  const accessToken = getCookie(cookieName);
+  const cookieValue = getCookie(cookieName);
 
-  //get all the cookies
-  const allCookies = cookies().getAll();
-  console.log('allCookies in token route', allCookies)
+  if(!cookieValue) {
+    return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  }
+  //Cookie values is a json with access_token and refresh_token
+  const { access_token } = JSON.parse(cookieValue);
 
-  console.log('accessToken in token route', accessToken)
+  // //get all the cookies
+  // const allCookies = cookies().getAll();
+  // console.log('allCookies in token route', allCookies)
+
+  // console.log('accessToken in token route', accessToken)
 
 
   //return NextResponse.json({ accessToken }, { status: 200 });
-  return NextResponse.json({ accessToken });
+  return NextResponse.json({ accessToken: access_token });
 
 }
