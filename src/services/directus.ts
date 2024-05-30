@@ -8,9 +8,6 @@ type DirectusResponseLogin = {
 
 async function login(email: string, password: string): Promise<DirectusResponseLogin> {
   try {
-    console.log('Trying to login with this: ', email, password)
-    console.log('To this urL: ', `${directusAPI}/auth/login`)
-    console.log('Doing login with this body: ', JSON.stringify({ email: email, password: password }))
     const response = await fetch(`${directusAPI}/auth/login`, {
       method: 'POST',
       body: JSON.stringify({ email: email, password: password }),
