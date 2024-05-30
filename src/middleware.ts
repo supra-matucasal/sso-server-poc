@@ -56,9 +56,13 @@ export async function middleware(req: NextRequest) {
 
   // }
 
+  if(req.nextUrl.pathname === '/'){
+    return new NextResponse('Page Not Available', { status: 403, headers: { 'Content-Type': 'text/plain' } });
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/api/auth/:path*', '/login'],
+  matcher: ['/api/auth/:path*', '/login', '/'],
 };
