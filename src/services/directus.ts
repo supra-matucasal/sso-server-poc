@@ -89,11 +89,51 @@ async function logout(accessToken: string, refreshToken: string) {
 }
 
 
+async function passwordResetRequest(email: string) {
+  try {
+    const resetUrl = process.env.AUTH_SSO_SERVER + '/password/reset';
+
+    const response = await fetch(`${directusAPI}/auth/password/request`, {
+      method: 'POST',
+      body: JSON.stringify({ email: email, reset_url: resetUrl }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error('Error requesting password reset:', error);
+    return false;
+  }
+}
+
+async function resetPassword(password: string, token: string) {
+  try {
+    const response = await fetch(`${directusAPI}/auth/password/reset`, {
+      method: 'POST',
+      body: JSON.stringify({ password: password, token: token }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error('Error resetting password:', error);
+    return false;
+  }
+}
+
 
 
 export {
   login,
   signup,
   me,
-  logout
+  logout,
+  passwordResetRequest,
+  resetPassword
 }

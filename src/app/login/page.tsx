@@ -66,6 +66,7 @@ export default function Login() {
         </form>
         <div >
           <button style={{ border: '1px solid black', backgroundColor: 'grey', marginTop: '1vh' }} onClick={() => router.push(`/signup?client_id=${clientId}&redirect_url=${redirect_url}&state=${state}`)}>Register</button>
+          <button style={{ border: '1px solid black', backgroundColor: 'grey', marginTop: '1vh' }} onClick={() => router.push(`/password/request?state=${state}`)}>Request Password Reset</button>
         </div>
       </div>
     </div>
