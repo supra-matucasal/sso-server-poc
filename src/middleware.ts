@@ -8,6 +8,8 @@ const allowedOrigins = [
   'http://localhost:5000',
   'http://app1.local:4000',
   'http://app2.local:5000',
+  'http://127.0.0.1:4000',
+  'http://127.0.0.1:5000'
   // Add other allowed origins here
 ];
 

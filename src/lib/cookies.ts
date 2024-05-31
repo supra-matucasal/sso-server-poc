@@ -10,7 +10,7 @@ export const setCookie = (cookieName: string, value: string) => {
     value: value,
     httpOnly: true,
     secure: process.env.NODE_ENV !== 'development',
-    sameSite: 'strict',
+    sameSite: 'lax',
     path: '/',
     domain: cookieDomain,
     maxAge: +cookieMaxAge

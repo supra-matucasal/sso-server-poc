@@ -9,44 +9,26 @@ export async function POST(req: NextRequest) {
   console.log('I am at token route')
   const { code, client_id, redirect_url, client_secret } = await req.json();
 
-  console.log(code, client_id, redirect_url, client_secret )
 
   if (!code || !client_id || !redirect_url || !client_secret) {
     return NextResponse.json({ error: 'code, client_id, redirect_url and client_secret are required' }, { status: 400 });
   }
 
 
-  //TODO: Validate code, the client_id and client_secret
+  //TODO: the client_id and client_secret
 
 
-
-  //Return the access token from the cookie
-  const cookieName = process.env.COOKIE_NAME;
-
-  if(!cookieName) {
+  /*** Validate the code and set the cookie ***/
+  const codeToken = await verifyToken(code);
+  if (!codeToken) {
     return new NextResponse(JSON.stringify({ error: 'Internal server error' }), { status: 500 });
-  
   }
 
-  console.log('Trying to get this cookie in the server: ', cookieName)
+  const accessToken = codeToken.access_token;
+  const refreshToken = codeToken.refresh_token;
 
+  const res = NextResponse.json({ accessToken });
 
-  const cookieValue = getCookie(cookieName);
-
-  if(!cookieValue) {
-    return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-  }
-  //Cookie values is a json with access_token and refresh_token
-  const { access_token } = JSON.parse(cookieValue);
-
-  // //get all the cookies
-  // const allCookies = cookies().getAll();
-  // console.log('allCookies in token route', allCookies)
-
-  // console.log('accessToken in token route', accessToken)
-
-
-  //return NextResponse.json({ accessToken }, { status: 200 });
-  return NextResponse.json({ accessToken: access_token });
+  return res;
 
 }

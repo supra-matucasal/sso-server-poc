@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { permanentRedirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { getCookie } from "@/lib/cookies";
+import { singCodeToken } from "@/lib/jwt";
 
 
 export async function GET(req: NextRequest) {
+  console.log('Trying to authorize')
   const clientId = req.nextUrl.searchParams.get('client_id');
   const redirectUrl = req.nextUrl.searchParams.get('redirect_url');
   const state = req.nextUrl.searchParams.get('state');
@@ -22,17 +24,17 @@ export async function GET(req: NextRequest) {
 
     if (cookieValue) {
       //Cookie values is a json with access_token and refresh_token
-      const { access_token } = JSON.parse(cookieValue);
-
+      const { access_token , refresh_token} = JSON.parse(cookieValue);
+      console.log('access_token in authorize', access_token)
       if (access_token) {
-        const code = Math.random().toString(36).substring(7);
+        const code = await singCodeToken({ access_token: access_token, refresh_token: refresh_token });
         const redirectWithState = `${redirectUrl}?state=${state}&code=${code}`;
-        return permanentRedirect(redirectWithState);
+        return redirect(redirectWithState);
       }
     }
 
   }
 
-  return permanentRedirect(`/login?client_id=${clientId}&redirect_url=${redirectUrl}&state=${state}`);
+  return redirect(`/login?client_id=${clientId}&redirect_url=${redirectUrl}&state=${state}`);
 
 }

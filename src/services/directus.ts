@@ -30,6 +30,28 @@ async function login(email: string, password: string): Promise<DirectusResponseL
   }
 }
 
+async function signup(email: string, password: string): Promise<DirectusResponseLogin> {
+  try {
+    await fetch(`${directusAPI}/users/register`, {
+      method: 'POST',
+      body: JSON.stringify({ email: email, password: password }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    
+    const response = await login(email, password);
+    console.log('Response after login:', response);
+    return response;
+
+  } catch (error) {
+    console.error('Error verifying token:', error);
+    throw error;
+  }
+
+}
+
 
 async function me(accessToken: string) {
   try {
@@ -71,6 +93,7 @@ async function logout(accessToken: string, refreshToken: string) {
 
 export {
   login,
+  signup,
   me,
   logout
 }

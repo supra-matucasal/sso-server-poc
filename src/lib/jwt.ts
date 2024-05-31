@@ -12,6 +12,13 @@ export const signTempToken = async (user: { id: number; email: string }) => {
     .sign(SECRET_KEY);
 };
 
+export const singCodeToken = async (payload: { access_token: string; refresh_token: string }) => {
+  return new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setExpirationTime(JWT_TEMP_EXPIRES_IN)
+    .sign(SECRET_KEY);
+}
+
 
 export const signToken = async (user: { id: number; email: string }) => {
   return new SignJWT(user)
