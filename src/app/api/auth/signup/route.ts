@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { signToken } from '@/lib/jwt';
+import { signToken, singCodeToken } from '@/lib/jwt';
 import { cookies } from 'next/headers'
 import bcrypt from 'bcrypt';
 import { signup } from '@/services/directus';
@@ -17,8 +17,8 @@ export async function POST(req: NextRequest) {
   const { access_token, refresh_token, expires } = await signup(email, password)
 
   const accessToken = access_token
-  const cookieName = process.env.COOKIE_NAME;
-  const cookieDomain = process.env.COOKIE_DOMAIN;
+  const cookieName = process.env.SESSION_NAME || 'server-cookie';
+  const cookieDomain = process.env.COOKIE_DOMAIN || 'localhost';
   const cookieMaxAge = process.env.COOKIE_MAX_AGE || 3600;
 
 
@@ -27,30 +27,67 @@ export async function POST(req: NextRequest) {
   }
 
   //The value of the cookie is a json with access token and refresh token
+  // const cookieValue = JSON.stringify({ access_token: accessToken, refresh_token: refresh_token });
+
+  // cookies().set({
+  //   name: cookieName,
+  //   value: cookieValue,
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV !== 'development',
+  //   sameSite: 'lax',
+  //   path: '/',
+  //   domain: cookieDomain,
+  //   maxAge: +cookieMaxAge
+  // });
+
+
+
+  // //Generate randome code for redirect
+  // const code = Math.random().toString(36).substring(7);
+
+
+  // const redirectWithState = `${redirect_url}?state=${state}&code=${code}`;
+
+  //The value of the cookie is a json with access token and refresh token
   const cookieValue = JSON.stringify({ access_token: accessToken, refresh_token: refresh_token });
 
-  cookies().set({
-    name: cookieName,
-    value: cookieValue,
-    httpOnly: true,
-    secure: process.env.NODE_ENV !== 'development',
-    sameSite: 'lax',
-    path: '/',
-    domain: cookieDomain,
-    maxAge: +cookieMaxAge
-  });
+ 
+
+  // cookies().set({
+  //   name: cookieName,
+  //   value: cookieValue,
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV !== 'development',
+  //   sameSite: 'lax',
+  //   path: '/',
+  //   domain: cookieDomain,
+  //   maxAge: +cookieMaxAge
+  // });
 
 
 
-  //Generate randome code for redirect
-  const code = Math.random().toString(36).substring(7);
+  //The code will contain a JWT created from the current access token and refresh token
+  const code = await singCodeToken({ access_token: accessToken, refresh_token: refresh_token });
+  
 
 
   const redirectWithState = `${redirect_url}?state=${state}&code=${code}`;
 
 
+
   console.log('redirectWithState: ', redirectWithState)
 
-  return NextResponse.json({ message: 'Signed up & Logged in', redirectUrl: redirectWithState });
+  const response =  NextResponse.json({ message: 'Signed up & Logged in', redirectUrl: redirectWithState });
+
+  response.cookies.set(cookieName, cookieValue, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV !== 'development',
+    sameSite: 'lax',
+    path: '/',
+    domain: cookieDomain,
+    maxAge: +cookieMaxAge,
+  });
+
+  return response;
 
 }
