@@ -20,7 +20,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
   
 
   //The value of the cookie is a json with access token and refresh token
-  const cookieValue = JSON.stringify({ access_token: accessToken, refresh_token: refresh_token });
+  const cookieValue = JSON.stringify({ access_token: accessToken, refresh_token: refresh_token, expires });
 
   const cookieName = process.env.SESSION_NAME || 'server-cookie';
   const cookieDomain = process.env.COOKIE_DOMAIN || 'localhost';
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
 
   //The code will contain a JWT created from the current access token and refresh token
-  const code = await singCodeToken({ access_token: accessToken, refresh_token: refresh_token });
+  const code = await singCodeToken({ access_token: accessToken, refresh_token: refresh_token, expires: expires });
   
 
 

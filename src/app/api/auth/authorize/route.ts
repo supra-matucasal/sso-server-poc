@@ -7,11 +7,11 @@ import { singCodeToken } from "@/lib/jwt";
 export async function GET(req: NextRequest) {
   console.log('Trying to authorize')
   const clientId = req.nextUrl.searchParams.get('client_id');
-  const redirectUrl = req.nextUrl.searchParams.get('redirect_url');
+  const redirectUrl = req.nextUrl.searchParams.get('redirect_uri');
   const state = req.nextUrl.searchParams.get('state');
 
   if (!clientId || !redirectUrl || !state) {
-    return new NextResponse(JSON.stringify({ error: 'client_id, redirect_url and state are required' }), { status: 400 });
+    return new NextResponse(JSON.stringify({ error: 'client_id, redirect_uri and state are required' }), { status: 400 });
   }
 
   //TODO: Validate client id & redirects urls
@@ -35,6 +35,6 @@ export async function GET(req: NextRequest) {
 
   }
 
-  return redirect(`/login?client_id=${clientId}&redirect_url=${redirectUrl}&state=${state}`);
+  return redirect(`/login?client_id=${clientId}&redirect_uri=${redirectUrl}&state=${state}`);
 
 }

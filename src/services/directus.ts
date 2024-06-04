@@ -40,7 +40,7 @@ async function signup(email: string, password: string): Promise<DirectusResponse
       },
     });
 
-    
+
     const response = await login(email, password);
     console.log('Response after login:', response);
     return response;
@@ -127,6 +127,29 @@ async function resetPassword(password: string, token: string) {
   }
 }
 
+async function refreshToken(refreshToken: string) {
+  try {
+    const response = await fetch(`${directusAPI}/auth/refresh`, {
+      method: 'POST',
+      body: JSON.stringify({ refresh_token: refreshToken, mode: 'json' }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.status === 200) {
+      const data = await response.json();
+      console.log('Data: ', data.data);
+      return data.data;
+    } else {
+      throw new Error('Failed to refresh token');
+    }
+  }
+  catch (error) {
+    console.error('Error refreshing token:', error);
+    return false;
+  }
+}
 
 
 export {
@@ -135,5 +158,6 @@ export {
   me,
   logout,
   passwordResetRequest,
-  resetPassword
+  resetPassword,
+  refreshToken
 }

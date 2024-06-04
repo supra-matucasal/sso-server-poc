@@ -13,7 +13,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const searchParams = useSearchParams()
 
-  const redirect_url = searchParams.get('redirect_url') || '/';
+  const redirect_url = searchParams.get('redirect_uri') || '/';
   const state = searchParams.get('state') || '';
   const clientId = searchParams.get('client_id') || '';
 
