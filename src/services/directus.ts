@@ -25,7 +25,7 @@ async function login(email: string, password: string): Promise<DirectusResponseL
     }
 
   } catch (error) {
-    console.error('Error verifying token:', error);
+    console.error('Error loggin in:', error);
     throw error;
   }
 }

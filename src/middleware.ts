@@ -9,12 +9,16 @@ const allowedOrigins = [
   'http://app1.local:4000',
   'http://app2.local:5000',
   'http://127.0.0.1:4000',
-  'http://127.0.0.1:5000'
+  'http://127.0.0.1:5000',
   // Add other allowed origins here
+  'http://127.0.0.1:80',
+  'http://127.0.0.1:8055'
 ];
 
 export async function middleware(req: NextRequest) {
+  console.log('Req: ', req.url)
   const origin = req.headers.get('origin');
+  console.log('Origin: ', origin)
 
   if (origin && allowedOrigins.includes(origin)) {
     const response = NextResponse.next();

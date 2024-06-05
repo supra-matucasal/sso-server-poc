@@ -11,12 +11,24 @@ export async function POST(req: NextRequest) {
   const body = await req.text();
   const params = new URLSearchParams(body);
 
+  console.log('Params: ', params)
+
   const code = params.get('code');
   const client_id = params.get('client_id');
   const redirect_uri = params.get('redirect_uri');
   const client_secret = params.get('client_secret');
   const grant_type = params.get('grant_type');
   const refresh_token = params.get('refresh_token');
+
+  console.log('Params: ', {
+    code,
+    client_id,
+    redirect_uri,
+    client_secret,
+    grant_type,
+    refresh_token
+  
+  })
 
   if (grant_type === 'authorization_code') {
     if (!code) {
