@@ -42,7 +42,7 @@ async function signup(email: string, password: string): Promise<DirectusResponse
 
 
     const response = await login(email, password);
-    console.log('Response after login:', response);
+    console.log('Response after signup:', response);
     return response;
 
   } catch (error) {

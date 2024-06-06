@@ -26,5 +26,5 @@ export async function GET(req: NextRequest) {
 
   console.log('Decoded user data: ', decoded.data);
 
-  return NextResponse.json({ id: decoded.data.id, email: decoded.data.email, name: decoded.data.first_name});
+  return NextResponse.json({ id: decoded.data.id, email: decoded.data.email, first_name: decoded.data.first_name, last_name: decoded.data.last_name});
 }

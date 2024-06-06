@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
 
 
   //The code will contain a JWT created from the current access token and refresh token
-  const code = await singCodeToken({ access_token: accessToken, refresh_token: refresh_token });
+  const code = await singCodeToken({ access_token: accessToken, refresh_token: refresh_token, expires });
   
 
 
