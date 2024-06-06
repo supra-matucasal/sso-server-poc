@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { verifyToken, signToken } from '@/lib/jwt';
 import { cookies } from 'next/headers';
 import { getCookie } from '@/lib/cookies';
-import { refreshToken } from '@/services/directus';
+import { refreshToken, isClientSecretValid, isRedirectUrlValid } from '@/services/directus';
 
 
 export async function POST(req: NextRequest) {
@@ -11,8 +11,7 @@ export async function POST(req: NextRequest) {
   const body = await req.text();
   const params = new URLSearchParams(body);
 
-  console.log('Params: ', params)
-
+  
   const code = params.get('code');
   const client_id = params.get('client_id');
   const redirect_uri = params.get('redirect_uri');
@@ -27,8 +26,15 @@ export async function POST(req: NextRequest) {
     client_secret,
     grant_type,
     refresh_token
-  
+
   })
+
+  if ((!client_id) || (!client_secret) || (!grant_type) || (!redirect_uri)) {
+    return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
+  }
+
+
+
 
   if (grant_type === 'authorization_code') {
     if (!code) {
@@ -37,7 +43,20 @@ export async function POST(req: NextRequest) {
 
 
     //TODO: the client_id and client_secret
+    //Check if the redirect URL and the client Secret are valid and belongs to the client
+    const isRedirectValid = await isRedirectUrlValid(client_id, redirect_uri);
+    if (!isRedirectValid) {
+      return NextResponse.json({ error: 'Invalid redirect_url or client Id' }, { status: 400 });
+    }
 
+    console.log('Redirect valid: ', isRedirectValid)
+
+    const isSecretValid = await isClientSecretValid(client_id, client_secret);
+    if (!isSecretValid) {
+      return NextResponse.json({ error: 'Invalid client_secret' }, { status: 400 });
+    }
+
+    console.log('Secret valid: ', isSecretValid)
 
     /*** Validate the code and set the cookie ***/
     const codeToken = await verifyToken(code);
