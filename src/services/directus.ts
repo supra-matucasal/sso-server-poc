@@ -1,4 +1,5 @@
 const directusAPI = process.env.NEXT_PUBLIC_DIRECTUS_API;
+const authToken = process.env.AUTH_TOKEN
 
 type DirectusResponseLogin = {
   access_token: string;
@@ -9,6 +10,7 @@ type DirectusResponseLogin = {
 async function login(email: string, password: string): Promise<DirectusResponseLogin> {
   try {
     const response = await fetch(`${directusAPI}/auth/login`, {
+      cache: 'no-store',
       method: 'POST',
       body: JSON.stringify({ email: email, password: password }),
       headers: {
@@ -33,6 +35,7 @@ async function login(email: string, password: string): Promise<DirectusResponseL
 async function signup(email: string, password: string): Promise<DirectusResponseLogin> {
   try {
     await fetch(`${directusAPI}/users/register`, {
+      cache: 'no-store',
       method: 'POST',
       body: JSON.stringify({ email: email, password: password }),
       headers: {
@@ -56,6 +59,7 @@ async function signup(email: string, password: string): Promise<DirectusResponse
 async function me(accessToken: string) {
   try {
     const response = await fetch(`${directusAPI}/users/me`, {
+      cache: 'no-store',
       headers: {
         'Authorization': `Bearer ${accessToken}`
       }
@@ -71,6 +75,7 @@ async function me(accessToken: string) {
 async function logout(accessToken: string, refreshToken: string) {
   try {
     const response = await fetch(`${directusAPI}/auth/logout`, {
+      cache: 'no-store',
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -94,6 +99,7 @@ async function passwordResetRequest(email: string) {
     const resetUrl = process.env.AUTH_SSO_SERVER + '/password/reset';
 
     const response = await fetch(`${directusAPI}/auth/password/request`, {
+      cache: 'no-store',
       method: 'POST',
       body: JSON.stringify({ email: email, reset_url: resetUrl }),
       headers: {
@@ -112,6 +118,7 @@ async function passwordResetRequest(email: string) {
 async function resetPassword(password: string, token: string) {
   try {
     const response = await fetch(`${directusAPI}/auth/password/reset`, {
+      cache: 'no-store',
       method: 'POST',
       body: JSON.stringify({ password: password, token: token }),
       headers: {
@@ -130,6 +137,7 @@ async function resetPassword(password: string, token: string) {
 async function refreshToken(refreshToken: string) {
   try {
     const response = await fetch(`${directusAPI}/auth/refresh`, {
+      cache: 'no-store',
       method: 'POST',
       body: JSON.stringify({ refresh_token: refreshToken, mode: 'json' }),
       headers: {
@@ -154,15 +162,15 @@ async function refreshToken(refreshToken: string) {
 
 async function getApplicationByClientId(clientId: string) {
   try {
-    console.log('Checking if client exists:', clientId)
+    console.log('authToken: ', authToken)
+    console.log('Checking if client exists with directusAPI:', clientId, directusAPI)
     const response = await fetch(`${directusAPI}/items/applications?filter[client_id][_eq]=${clientId}`, {
+      cache: 'no-store',
       method: 'GET',
       headers: {
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+        'Authorization': `Bearer ${authToken}`
       }
-    });
+    }, );
     const result = await response.json();
     if (response.status === 200 && result.data.length > 0) {
       console.log('result.data[0]: ', result.data[0])

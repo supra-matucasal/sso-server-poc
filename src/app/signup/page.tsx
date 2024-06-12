@@ -19,7 +19,7 @@ export default function Signup() {
       const response = await axios.post('/api/auth/signup', { email, password, redirect_url, state });
       if (response.status === 200) {
         const { redirectUrl: serverRedirectUrl } = response.data;
-        console.log('I have to redirect to: ', serverRedirectUrl)
+        //console.log('I have to redirect to: ', serverRedirectUrl)
         // Redirect to the URL provided by the server
         window.location.href = serverRedirectUrl;
       }
