@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
   // const redirectWithState = `${redirect_url}?state=${state}&code=${code}`;
 
   //The value of the cookie is a json with access token and refresh token
-  const cookieValue = JSON.stringify({ access_token: accessToken, refresh_token: refresh_token });
+  const cookieValue = JSON.stringify({ access_token: accessToken, refresh_token: refresh_token, email: email });
 
  
 
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
 
 
   //The code will contain a JWT created from the current access token and refresh token
-  const code = await singCodeToken({ access_token: accessToken, refresh_token: refresh_token, expires });
+  const code = await singCodeToken({ access_token: accessToken, refresh_token: refresh_token, expires, email });
   
 
 

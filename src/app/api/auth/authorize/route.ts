@@ -33,10 +33,10 @@ export async function GET(req: NextRequest) {
 
     if (cookieValue) {
       //Cookie values is a json with access_token and refresh_token
-      const { access_token , refresh_token, expires} = JSON.parse(cookieValue);
+      const { access_token , refresh_token, expires, email} = JSON.parse(cookieValue);
       console.log('access_token in authorize', access_token)
       if (access_token) {
-        const code = await singCodeToken({ access_token: access_token, refresh_token: refresh_token, expires });
+        const code = await singCodeToken({ access_token: access_token, refresh_token: refresh_token, expires, email});
         const redirectWithState = `${redirectUrl}?state=${state}&code=${code}`;
         return redirect(redirectWithState);
       }

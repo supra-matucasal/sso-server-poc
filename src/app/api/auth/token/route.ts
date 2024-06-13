@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   const body = await req.text();
   const params = new URLSearchParams(body);
 
-  
+
   const code = params.get('code');
   const client_id = params.get('client_id');
   const redirect_uri = params.get('redirect_uri');
@@ -69,10 +69,12 @@ export async function POST(req: NextRequest) {
     const accessToken = codeToken.access_token;
     const refreshToken = codeToken.refresh_token;
     const expires = codeToken.expires;
+    const email = codeToken.email;
 
     const res = NextResponse.json({
       access_token: accessToken,
       refresh_token: refreshToken,
+      email: email,
       token_type: 'Bearer',
       expires_in: expires,
       scope: 'openid profile email'
