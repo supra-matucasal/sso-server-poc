@@ -2,12 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/jwt';
 import { prisma } from '@/lib/prisma';
 import { me } from '@/services/directus';
+import { validateClient } from '@/middleware/validateClient';
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+  }
+
+
+  //Get the body of the request to get the client_id and client_secret
+  const clientId = req.nextUrl.searchParams.get("client_id") || '';
+  const clientSecret = req.nextUrl.searchParams.get("client_secret") || '';
+
+  //Validate if the client_id and client_secret are valid
+  const validationError = await validateClient(clientId, clientSecret);
+  if (validationError) {
+    return validationError;
   }
 
 

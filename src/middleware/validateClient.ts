@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
-import { isClientSecretValid, isRedirectUrlValid } from '@/services/directus';
+import { isClientSecretValid } from '@/services/directus';
 
-export async function validateClient(params: URLSearchParams) {
-  const client_id = params.get('client_id');
-  const client_secret = params.get('client_secret');
-
+export async function validateClient(client_id: string, client_secret: string) {
+  
   if (!client_id || !client_secret) {
     return NextResponse.json({ error: 'client_id, client_secret are required' }, { status: 400 });
   }

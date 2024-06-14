@@ -1,24 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/jwt';
-import { refreshToken, isClientSecretValid, isRedirectUrlValid } from '@/services/directus';
+import { refreshToken, isRedirectUrlValid } from '@/services/directus';
 import { validateClient } from '@/middleware/validateClient';
 
 
 export async function POST(req: NextRequest) {
-  //Validate if the client_id and client_secret are valid
+  
   const body = await req.text();
   const params = new URLSearchParams(body);
 
-  const validationError = await validateClient(params);
-  if (validationError) {
-    return validationError;
-  }
-
-
-  const code = params.get('code');
   const client_id = params.get('client_id');
-  const redirect_uri = params.get('redirect_uri');
   const client_secret = params.get('client_secret');
+  const code = params.get('code');
+  const redirect_uri = params.get('redirect_uri');
   const grant_type = params.get('grant_type');
   const refresh_token = params.get('refresh_token');
 
@@ -36,7 +30,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
   }
 
-
+  //Validate if the client_id and client_secret are valid
+  const validationError = await validateClient(client_id, client_secret);
+  if (validationError) {
+    return validationError;
+  }
 
 
   if (grant_type === 'authorization_code') {
