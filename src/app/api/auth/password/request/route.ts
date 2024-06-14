@@ -10,7 +10,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
   }
 
 
-  const response = await passwordResetRequest(email);
+  await passwordResetRequest(email);
   
   res = NextResponse.json({ message: 'Password reset requested' });
   return res;

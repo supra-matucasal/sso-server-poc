@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { verifyToken, signToken } from '@/lib/jwt';
-import { cookies } from 'next/headers';
-import { getCookie } from '@/lib/cookies';
+import { verifyToken } from '@/lib/jwt';
 import { refreshToken, isClientSecretValid, isRedirectUrlValid } from '@/services/directus';
+import { validateClient } from '@/middleware/validateClient';
 
 
 export async function POST(req: NextRequest) {
-  //const { code, client_id, redirect_uri, client_secret } = await req.json();
+  //Validate if the client_id and client_secret are valid
   const body = await req.text();
   const params = new URLSearchParams(body);
+
+  const validationError = await validateClient(params);
+  if (validationError) {
+    return validationError;
+  }
 
 
   const code = params.get('code');
@@ -51,12 +54,11 @@ export async function POST(req: NextRequest) {
 
     console.log('Redirect valid: ', isRedirectValid)
 
-    const isSecretValid = await isClientSecretValid(client_id, client_secret);
-    if (!isSecretValid) {
-      return NextResponse.json({ error: 'Invalid client_secret' }, { status: 400 });
-    }
+    // const isSecretValid = await isClientSecretValid(client_id, client_secret);
+    // if (!isSecretValid) {
+    //   return NextResponse.json({ error: 'Invalid client_secret' }, { status: 400 });
+    // }
 
-    console.log('Secret valid: ', isSecretValid)
 
     /*** Validate the code and set the cookie ***/
     const codeToken = await verifyToken(code);
