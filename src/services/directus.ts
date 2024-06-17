@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 const directusAPI = process.env.NEXT_PUBLIC_DIRECTUS_API;
 const authToken = process.env.AUTH_TOKEN
 
@@ -32,25 +34,25 @@ async function login(email: string, password: string): Promise<DirectusResponseL
   }
 }
 
-async function signup(email: string, password: string): Promise<DirectusResponseLogin> {
+async function signup(email: string, password: string) {
   try {
-    await fetch(`${directusAPI}/users/register`, {
+    const verificationUrl = process.env.AUTH_SSO_SERVER + '/api/auth/verify-email';
+
+    console.log('Creating user...:', JSON.stringify({ email: email, password: password, verification_url: verificationUrl }))
+
+    const response = await fetch(`${directusAPI}/users/register`, {
       cache: 'no-store',
       method: 'POST',
-      body: JSON.stringify({ email: email, password: password }),
+      body: JSON.stringify({ email: email, password: password, verification_url: verificationUrl }),
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
-
-    const response = await login(email, password);
-    console.log('Response after signup:', response);
     return response;
-
   } catch (error) {
-    console.error('Error verifying token:', error);
-    throw error;
+    console.error('Error signin up token:', error);
+    return { status: 400, error: error};
   }
 
 }
@@ -170,7 +172,7 @@ async function getApplicationByClientId(clientId: string) {
       headers: {
         'Authorization': `Bearer ${authToken}`
       }
-    }, );
+    },);
     const result = await response.json();
     if (response.status === 200 && result.data.length > 0) {
       console.log('result.data[0]: ', result.data[0])
@@ -206,6 +208,63 @@ async function isClientSecretValid(clientId: string, clientSecret: string) {
 }
 
 
+//Had to use axios because fetch was not working properly
+async function checkUserExists(email: string) {
+
+  const data = JSON.stringify({
+    "query": {
+      "filter": {
+        "email": {
+          "_eq": email
+        }
+      }
+    }
+  });
+  
+  const config = {
+    method: 'search',
+    url: `${directusAPI}/users`,
+    headers: { 
+      'Authorization': `Bearer ${authToken}`,
+      'Content-Type': 'application/json'
+    },
+    data : data
+  };
+
+  try {
+    const response = await axios(config)
+
+    if (response.data.data.length > 0) {
+      return true;
+    }
+    return false;
+  }
+  catch (error) {
+    console.error('Error verifying user:', error);
+    return false;
+  }
+
+}
+
+
+async function verifyEmail (token: string) {
+  try {
+    const response = await fetch(`${directusAPI}/users/register/verify-email?token=${token}`, {
+      cache: 'no-store',
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error('Error verifying token:', error);
+    return { status: 400 };
+  }
+}
+
 export {
   login,
   signup,
@@ -216,5 +275,7 @@ export {
   refreshToken,
   getApplicationByClientId,
   isRedirectUrlValid,
-  isClientSecretValid
+  isClientSecretValid,
+  checkUserExists,
+  verifyEmail
 }
