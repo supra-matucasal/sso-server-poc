@@ -17,8 +17,21 @@ const allowedOrigins = [
 
 export async function middleware(req: NextRequest) {
   console.log('Req: ', req.url)
-  const origin = req.headers.get('origin');
-  console.log('Origin: ', origin)
+  const referer = req.headers.get('Referer');
+
+  if (!referer) {
+    return new NextResponse('Not allowed', { status: 403, headers: { 'Content-Type': 'text/plain' } });
+  }
+  const url = new URL(referer);
+  const origin = url.origin;
+
+  console.log('referer: ', referer)
+  console.log('origin: ', origin)
+
+  if (req.nextUrl.pathname === '/') {
+    return new NextResponse('Page Not Available', { status: 403, headers: { 'Content-Type': 'text/plain' } });
+  }
+
 
   if (origin && allowedOrigins.includes(origin)) {
     const response = NextResponse.next();
@@ -33,7 +46,9 @@ export async function middleware(req: NextRequest) {
       return new NextResponse(null, { headers: response.headers });
     }
 
-    return response;
+    return NextResponse.next();
+  } else {
+    return new NextResponse('Not allowed', { status: 403, headers: { 'Content-Type': 'text/plain' } });
   }
 
 
@@ -62,13 +77,9 @@ export async function middleware(req: NextRequest) {
 
   // }
 
-  if(req.nextUrl.pathname === '/'){
-    return new NextResponse('Page Not Available', { status: 403, headers: { 'Content-Type': 'text/plain' } });
-  }
 
-  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/api/auth/:path*', '/login', '/'],
+  matcher: ['/api/auth/authorize', '/login', '/signup', '/'],
 };

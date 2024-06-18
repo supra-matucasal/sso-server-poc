@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { redirect } from 'next/navigation'
-import { getCookie } from "@/lib/cookies";
+import { getCookie, setCookie } from "@/lib/cookies";
 import { singCodeToken } from "@/lib/jwt";
 import { isRedirectUrlValid } from "@/services/directus";
 
@@ -27,16 +27,16 @@ export async function GET(req: NextRequest) {
 
 
   //If we already have a cookie we should redirect to the callback URL
-  const cookieName = process.env.COOKIE_NAME;
+  const cookieName = process.env.SESSION_COOKIE_NAME;
   if (cookieName) {
     const cookieValue = getCookie(cookieName);
 
     if (cookieValue) {
       //Cookie values is a json with access_token and refresh_token
-      const { access_token , refresh_token, expires, email} = JSON.parse(cookieValue);
+      const { access_token, refresh_token, expires, email } = JSON.parse(cookieValue);
       console.log('access_token in authorize', access_token)
       if (access_token) {
-        const code = await singCodeToken({ access_token: access_token, refresh_token: refresh_token, expires, email});
+        const code = await singCodeToken({ access_token: access_token, refresh_token: refresh_token, expires, email });
         const redirectWithState = `${redirectUrl}?state=${state}&code=${code}`;
         return redirect(redirectWithState);
       }
@@ -44,6 +44,13 @@ export async function GET(req: NextRequest) {
 
   }
 
-  return redirect(`/login?client_id=${clientId}&redirect_uri=${redirectUrl}&state=${state}`);
+
+  //Set temporary cookie with the client_id and redirect_uri
+  const cookieValue = JSON.stringify({ clientId: clientId, redirectUrl: redirectUrl });
+  const cookieTempName = process.env.TEMP_AUTH_COOKIE_NAME || 'supra-temp-auth-cookie';
+  setCookie(cookieTempName, cookieValue);
+  //cookieName: string, value: string
+
+  return redirect(`/login?state=${state}`);
 
 }

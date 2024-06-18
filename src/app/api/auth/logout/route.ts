@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   }
 
   //TODO: Validate client id & redirects urls
-  const cookieName = process.env.COOKIE_NAME;
+  const cookieName = process.env.SESSION_COOKIE_NAME;
 
   if (!cookieName) {
     return new NextResponse(JSON.stringify({ error: 'Internal server error' }), { status: 500 });

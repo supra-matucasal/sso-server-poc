@@ -24,7 +24,10 @@ export default function Login() {
 
       const response = await axios.post('/api/auth/login', { email, password, redirect_url, state });
       if (response.status === 200) {
+        console.log('Login successful');
         const { redirectUrl: serverRedirectUrl } = response.data;
+
+        console.log('serverRedirectUrl: ', serverRedirectUrl)
         //   console.log('I have to redirect to: ', serverRedirectUrl)
         //   // Redirect to the URL provided by the server
         window.location.href = serverRedirectUrl;
