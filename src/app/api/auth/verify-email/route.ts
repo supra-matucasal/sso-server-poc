@@ -4,6 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
   try {
     const token = req.nextUrl.searchParams.get('token');
+    const state = req.nextUrl.searchParams.get('state');
+
+    console.log('state: ', state)
 
     if (!token) {
       return NextResponse.json({ error: 'Token is required' }, { status: 400 });

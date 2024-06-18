@@ -34,9 +34,9 @@ async function login(email: string, password: string): Promise<DirectusResponseL
   }
 }
 
-async function signup(email: string, password: string) {
+async function signup(email: string, password: string, state: string) {
   try {
-    const verificationUrl = process.env.AUTH_SSO_SERVER + '/api/auth/verify-email';
+    const verificationUrl = `${process.env.AUTH_SSO_SERVER}/api/auth/verify-email?state=${state}`;
 
     console.log('Creating user...:', JSON.stringify({ email: email, password: password, verification_url: verificationUrl }))
 

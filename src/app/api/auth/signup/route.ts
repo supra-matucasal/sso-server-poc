@@ -22,11 +22,15 @@ export async function POST(req: NextRequest) {
   }
 
   //2- Create the user
-  await signup(email, password)
+  const response = await signup(email, password, state);
+  if (response.status !== 200 && response.status !== 204) {
+    return NextResponse.json({ error: 'Sign up failed' }, { status: response.status });
+
+  }
 
   //3) Try to login, if login does not work it means that the user has to confirm the email
   //const { access_token, refresh_token, expires } = await login(email, password);
-  
+
 
   // const accessToken = access_token
   // const cookieName = process.env.SESSION_NAME || 'server-cookie';
@@ -63,7 +67,7 @@ export async function POST(req: NextRequest) {
   //The value of the cookie is a json with access token and refresh token
   //const cookieValue = JSON.stringify({ access_token: accessToken, refresh_token: refresh_token, email: email });
 
- 
+
 
   // cookies().set({
   //   name: cookieName,
@@ -80,14 +84,14 @@ export async function POST(req: NextRequest) {
 
   //The code will contain a JWT created from the current access token and refresh token
   //const code = await singCodeToken({ access_token: accessToken, refresh_token: refresh_token, expires, email });
-  
+
 
 
   // const redirectWithState = `${redirect_url}?state=${state}&code=${code}`;
   // console.log('redirectWithState: ', redirectWithState)
   const redirectAfterSignup = `${process.env.AUTH_SSO_SERVER}/signup/success`;
 
-  const response =  NextResponse.json({ message: 'Signed up & Logged in', redirectUrl: redirectAfterSignup });
+  return NextResponse.json({ message: 'Signed up & Logged in', redirectUrl: redirectAfterSignup });
 
   // response.cookies.set(cookieName, cookieValue, {
   //   httpOnly: true,
@@ -98,6 +102,6 @@ export async function POST(req: NextRequest) {
   //   maxAge: +cookieMaxAge,
   // });
 
-  return response;
+
 
 }
