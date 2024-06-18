@@ -24,6 +24,7 @@ export default function PasswordResetRequest() {
       const response = await axios.post('/api/auth/password/request', { email, state });
       if (response.status === 200) {
           console.log('Password reset request sent')
+          router.push('/password/request/success')
       }
     } catch (error) {
       console.log(error);
